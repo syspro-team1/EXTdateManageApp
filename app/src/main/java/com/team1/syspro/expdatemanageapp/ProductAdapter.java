@@ -46,6 +46,15 @@ public class ProductAdapter extends BaseAdapter {
         // 日付表示のフォーマットを設定
         format = new SimpleDateFormat("yyyy.MM.dd");
     }
+    //adapterへのアイテムの追加処理
+    public boolean add(productItem item){
+        boolean ress = this.items.add(item);
+        if (ress){
+            //アイテムが正常に追加されればnotifyする．s
+            notifyDataSetChanged();
+        }
+        return ress;
+    }
 
     @Override
     public int getCount(){

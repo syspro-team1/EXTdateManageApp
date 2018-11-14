@@ -3,6 +3,8 @@ package com.team1.syspro.expdatemanageapp;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -48,7 +50,7 @@ public class ProductManageActivity extends AppCompatActivity {
 
         /* ListViewのインスタンスを取得し，BaseAdapterをextendしたProductAdapterを設定 */
         ListView listView = findViewById(R.id.listView);
-        BaseAdapter adapter = new ProductAdapter(this.getApplicationContext(), R.layout.list_items,
+        final BaseAdapter adapter = new ProductAdapter(this.getApplicationContext(), R.layout.list_items,
                 productList);
         listView.setAdapter(adapter);
 
@@ -61,8 +63,12 @@ public class ProductManageActivity extends AppCompatActivity {
                 String name = "nantoka" + String.valueOf(dammy);
                 Calendar exp_date = Calendar.getInstance();
                 exp_date.add(Calendar.DATE,dammy);
+                //database への追加
                 insertData(m_db,name,exp_date);
+                // productAdapterへの追加
+                ((ProductAdapter) adapter).add(new productItem(name,exp_date));
                 dammy++;
+
             }
         });
     }
