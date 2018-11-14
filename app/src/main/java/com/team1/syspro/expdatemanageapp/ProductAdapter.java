@@ -24,12 +24,10 @@ public class ProductAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     // layout id
     private int layoutID;
-    // 賞味期限のdate
-    private ArrayList<Calendar> exp_dates;
+    // productItem のArrayList
+    private ArrayList<productItem> items;
     // 日付表示のフォーマット
     private SimpleDateFormat format;
-    // 商品名
-    private ArrayList<String> product_names;
 
     // View holder
     static class ViewHolder{
@@ -39,19 +37,19 @@ public class ProductAdapter extends BaseAdapter {
 
 
     public ProductAdapter(Context context, int layoutID,
-                          ArrayList<String> product_name, ArrayList<Calendar> exp_date){
+                          ArrayList<productItem> productList){
         inflater = LayoutInflater.from(context);
         // ここに置けるレイアウトは一つのアイテム内でのレイアウトを指している
         this.layoutID = layoutID;
-        this.exp_dates = (ArrayList<Calendar>)exp_date.clone();
-        this.product_names = (ArrayList<String>) product_name.clone();
+        // deep copy
+        this.items = (ArrayList<productItem>) productList.clone();
         // 日付表示のフォーマットを設定
         format = new SimpleDateFormat("yyyy.MM.dd");
     }
 
     @Override
     public int getCount(){
-        return exp_dates.size();
+        return items.size();
     }
     @Override
     public Object getItem(int position){
@@ -78,8 +76,8 @@ public class ProductAdapter extends BaseAdapter {
             holder = (ViewHolder)convertView.getTag();
         }
         //実際にフォルダーにテキストを設定
-        holder.product_name.setText(product_names.get(position));
-        holder.exp_date.setText(format.format(exp_dates.get(position).getTime()));
+        holder.product_name.setText(items.get(position).getProduct());
+        holder.exp_date.setText(format.format(items.get(position).getExp_date().getTime()));
         return convertView;
     }
 
