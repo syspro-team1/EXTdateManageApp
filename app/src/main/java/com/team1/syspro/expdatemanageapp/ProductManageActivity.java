@@ -6,7 +6,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import java.text.ParseException;
@@ -26,6 +28,7 @@ import java.util.List;
 public class ProductManageActivity extends AppCompatActivity {
     private DatabaseOpenHelper m_helper;
     private SQLiteDatabase m_db;
+    private static int dammy=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("my-debug","product manager activity onCreate;");
@@ -48,6 +51,20 @@ public class ProductManageActivity extends AppCompatActivity {
         BaseAdapter adapter = new ProductAdapter(this.getApplicationContext(), R.layout.list_items,
                 productList);
         listView.setAdapter(adapter);
+
+        dammy=0;
+        Button addButton = findViewById(R.id.addButton);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //:TODO とりあえずダミーのproduct Itemを追加する．
+                String name = "nantoka" + String.valueOf(dammy);
+                Calendar exp_date = Calendar.getInstance();
+                exp_date.add(Calendar.DATE,dammy);
+                insertData(m_db,name,exp_date);
+                dammy++;
+            }
+        });
     }
 
     private ArrayList<productItem> readAllData(){
@@ -71,10 +88,12 @@ public class ProductManageActivity extends AppCompatActivity {
             try {
                 productItem item = new productItem(product, exp_date);
                 list.add(item);
+                Log.d("my-debug","******"+product+" "+exp_date);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         };
+        cursor.close();
 
         return list;
     }
@@ -86,6 +105,7 @@ public class ProductManageActivity extends AppCompatActivity {
         // calender -> stringへ変更
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
         values.put("exp_date",sdf.format(exp_date.getTime()) );
+        Log.d("my-debug","******"+product+" "+values+" insert");
         db.insert("listdb",null,values);
     }
 }
