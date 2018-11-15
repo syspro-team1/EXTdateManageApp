@@ -131,8 +131,7 @@ public class ProductManageActivity extends AppCompatActivity
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         //対象のproductItem classを取得
         Log.d("my-debug","onItemClick");
-        deleteItem((productItem)parent.getAdapter().getItem(position), position);
-        //alertCheck((productItem)parent.getAdapter().getItem(position), position);
+        alertCheck((productItem)parent.getAdapter().getItem(position), position);
     }
     /* ダイアログを表示する */
     private void alertCheck(productItem item ,int position){
@@ -147,7 +146,7 @@ public class ProductManageActivity extends AppCompatActivity
                 // リストアイテムを選択したときの処理
                 // 上に移動
                 if (idx == 0) {
-                    deleteItem(ite, pos);
+                    deleteItem(m_db,ite, pos);
                 }
                 // cancel
                 else {
@@ -158,16 +157,10 @@ public class ProductManageActivity extends AppCompatActivity
         alert.show();
     }
     /* itemを削除する */
-    private void deleteItem(productItem item, int position){
+    private void deleteItem(SQLiteDatabase db, productItem item, int position){
         ((ProductAdapter) adapter).remove(position);
 
-        if(m_helper == null){
-            m_helper = new DatabaseOpenHelper(getApplicationContext());
-        }
-        if(m_db == null){
-            m_db = m_helper.getWritableDatabase();
-        }
-        int a = m_db.delete("listdb", "product = ?",new String[]{item.getProduct()});
+        int a = db.delete("listdb", "product = ? AND exp_date = ?",new String[]{item.getProduct(),item.getExp_dateString()});
 
         Log.d("my-debug",String.valueOf(a) + " " + item.getProduct()+" "+item.getExp_dateString());
     }
