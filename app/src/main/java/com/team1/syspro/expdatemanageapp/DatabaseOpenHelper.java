@@ -9,7 +9,7 @@ import android.util.Log;
 //SQLite database のHelperの継承
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "list.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String TABLE_NAME = "listdb";
     private static final String _ID = "_id";
     private static final String COLUMN_NAME_TITLE = "product";
@@ -17,7 +17,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_ENTRIES =
                     "CREATE TABLE " + TABLE_NAME + " (" +
-                    _ID + " INTEGER_PRIMARY_KEY," +
+                    _ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     COLUMN_NAME_TITLE + " TEXT," +
                     COLUMN_NAME_SUBTITLE + " TEXT)";
 

@@ -1,6 +1,8 @@
 package com.team1.syspro.expdatemanageapp;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
@@ -9,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -27,10 +30,13 @@ import java.util.List;
 /* 商品アイテムの管理アクティビティ */
 // :TODO Stringとかはstring xmlとかに分離するのが綺麗らしい
 // :TODO listdbとかマジックナンバになっているのでよくない気はする
-public class ProductManageActivity extends AppCompatActivity {
+public class ProductManageActivity extends AppCompatActivity
+    implements AdapterView.OnItemClickListener {
     private DatabaseOpenHelper m_helper;
     private SQLiteDatabase m_db;
     private static int dammy=0;
+    private BaseAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("my-debug","product manager activity onCreate;");
@@ -50,9 +56,13 @@ public class ProductManageActivity extends AppCompatActivity {
 
         /* ListViewのインスタンスを取得し，BaseAdapterをextendしたProductAdapterを設定 */
         ListView listView = findViewById(R.id.listView);
-        final BaseAdapter adapter = new ProductAdapter(this.getApplicationContext(), R.layout.list_items,
-                productList);
+        if (adapter == null) {
+            adapter = new ProductAdapter(ProductManageActivity.this, R.layout.list_items,
+                    productList);
+        }
         listView.setAdapter(adapter);
+        // Listenerを設定
+        listView.setOnItemClickListener(this);
 
         dammy=0;
         Button addButton = findViewById(R.id.addButton);
@@ -104,6 +114,7 @@ public class ProductManageActivity extends AppCompatActivity {
         return list;
     }
 
+    //:TODO そもそもDatabaseOpenHelperがあるのにinsertとかでdbをいじってるのがおかしい
     // databaseへのinsert
     private void insertData(SQLiteDatabase db, String product, Calendar exp_date){
         ContentValues values = new ContentValues();
@@ -113,5 +124,51 @@ public class ProductManageActivity extends AppCompatActivity {
         values.put("exp_date",sdf.format(exp_date.getTime()) );
         Log.d("my-debug","******"+product+" "+values+" insert");
         db.insert("listdb",null,values);
+    }
+
+    /* product item がクリックされた時の処理　*/
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        //対象のproductItem classを取得
+        Log.d("my-debug","onItemClick");
+        deleteItem((productItem)parent.getAdapter().getItem(position), position);
+        //alertCheck((productItem)parent.getAdapter().getItem(position), position);
+    }
+    /* ダイアログを表示する */
+    private void alertCheck(productItem item ,int position){
+        final int pos=position;
+        final productItem ite = item;
+        String[] alert_menu = {"削除", "cancel"};
+        AlertDialog.Builder alert = new AlertDialog.Builder(ProductManageActivity.this);
+        alert.setTitle(item.getProduct());
+        alert.setItems(alert_menu, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int idx) {
+                // リストアイテムを選択したときの処理
+                // 上に移動
+                if (idx == 0) {
+                    deleteItem(ite, pos);
+                }
+                // cancel
+                else {
+                    Log.d("my-debug", "ProductItem Dialog cancel");
+                }
+            }
+        });
+        alert.show();
+    }
+    /* itemを削除する */
+    private void deleteItem(productItem item, int position){
+        ((ProductAdapter) adapter).remove(position);
+
+        if(m_helper == null){
+            m_helper = new DatabaseOpenHelper(getApplicationContext());
+        }
+        if(m_db == null){
+            m_db = m_helper.getWritableDatabase();
+        }
+        int a = m_db.delete("listdb", "product = ?",new String[]{item.getProduct()});
+
+        Log.d("my-debug",String.valueOf(a) + " " + item.getProduct()+" "+item.getExp_dateString());
     }
 }

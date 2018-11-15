@@ -47,7 +47,7 @@ public class ProductAdapter extends BaseAdapter {
         format = new SimpleDateFormat("yyyy.MM.dd");
     }
     //adapterへのアイテムの追加処理
-    public boolean add(productItem item){
+    public boolean add(productItem item) {
         boolean ress = this.items.add(item);
         if (ress){
             //アイテムが正常に追加されればnotifyする．s
@@ -56,13 +56,18 @@ public class ProductAdapter extends BaseAdapter {
         return ress;
     }
 
+    public void remove(int position){
+        items.remove(position);
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount(){
         return items.size();
     }
     @Override
     public Object getItem(int position){
-        return position;
+        return items.get(position);
     }
     @Override
     public long getItemId(int position){
