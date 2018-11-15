@@ -24,6 +24,9 @@ public class productItem {
         this.exp_date.setTime(d);
     }
 
+    public String getExp_dateString(){
+        return sdf.format(this.exp_date.getTime());
+    }
 
     public String getProduct() {
         return product;
