@@ -10,12 +10,8 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.lang.Object;
-
-import static android.content.ContentValues.TAG;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 // BaseAdapter を継承したクラス
@@ -55,9 +51,20 @@ public class ProductAdapter extends BaseAdapter {
         }
         return ress;
     }
-
+    //adapterへのアイテムの削除
     public void remove(int position){
         items.remove(position);
+        notifyDataSetChanged();
+    }
+    //adapterの賞味期限順にソート
+    public void sort_byExp_date(){
+        //comparator classを匿名関数で定義，Collectionsでソート
+        Collections.sort(items, new Comparator<productItem>() {
+            @Override
+            public int compare(productItem o1, productItem o2) {
+                return o1.getExp_date().compareTo(o2.getExp_date());
+            }
+        });
         notifyDataSetChanged();
     }
 
