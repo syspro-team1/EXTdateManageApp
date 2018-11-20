@@ -44,6 +44,14 @@ public class ProductAdapter extends BaseAdapter {
     }
     //adapterへのアイテムの追加処理
     public boolean add(productItem item) {
+        //存在していれば，個数を加算して終了
+        for(productItem it:items){
+            if(item.equals(it)){
+                it.setNum(it.getNum() + item.getNum());
+                notifyDataSetChanged();
+                return true;
+            }
+        }
         boolean ress = this.items.add(item);
         if (ress){
             //アイテムが正常に追加されればnotifyする．s
