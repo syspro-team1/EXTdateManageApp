@@ -183,27 +183,33 @@ public class ProductManageActivity extends AppCompatActivity
         alertCheck((productItem)parent.getAdapter().getItem(position), position);
     }
     /* ダイアログを表示する */
-    private void alertCheck(productItem item ,int position){
+    private void alertCheck(productItem target ,int position){
         final int pos=position;
-        final productItem ite = item;
-        String[] alert_menu = {"削除", "cancel"};
-        AlertDialog.Builder alert = new AlertDialog.Builder(ProductManageActivity.this);
-        alert.setTitle(item.getProduct());
-        alert.setItems(alert_menu, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int idx) {
-                // リストアイテムを選択したときの処理
-                // 上に移動
-                if (idx == 0) {
-                    deleteItem(m_db,ite, pos);
+        // 名前を表示している部分か，賞味期限をだしている部分かで処理を変える
+        if (target.getNum() == -1){
+
+
+        }else {
+            final productItem item = target;
+            String[] alert_menu = {"削除", "cancel"};
+            AlertDialog.Builder alert = new AlertDialog.Builder(ProductManageActivity.this);
+            alert.setTitle(target.toString());
+            alert.setItems(alert_menu, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int idx) {
+                    // リストアイテムを選択したときの処理
+                    // 削除
+                    if (idx == 0) {
+                        deleteItem(m_db, item, pos);
+                    }
+                    // cancel
+                    else {
+                        Log.d("my-debug", "ProductItem Dialog cancel");
+                    }
                 }
-                // cancel
-                else {
-                    Log.d("my-debug", "ProductItem Dialog cancel");
-                }
-            }
-        });
-        alert.show();
+            });
+            alert.show();
+        }
     }
     /* itemを削除する */
     private void deleteItem(SQLiteDatabase db, productItem item, int position){

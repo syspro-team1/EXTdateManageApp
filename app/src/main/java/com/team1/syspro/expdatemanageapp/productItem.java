@@ -61,4 +61,10 @@ public class productItem {
     public int getNum() { return num; }
 
     public void setNum(int num) { this.num = num; }
+
+    @Override
+    public String toString() {
+        String str = "[" + getProduct() + ", " + getExp_dateString() + ", " + getNum() + "]";
+        return str;
+    }
 }
