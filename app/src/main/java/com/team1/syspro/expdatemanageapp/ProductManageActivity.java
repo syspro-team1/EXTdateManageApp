@@ -85,9 +85,9 @@ public class ProductManageActivity extends AppCompatActivity
                 Calendar exp_date = Calendar.getInstance();
                 exp_date.add(Calendar.DATE,dammy);
                 //database への追加
-                insertData(m_db,name,exp_date);
+                insertData(m_db,name,exp_date,1);
                 // productAdapterへの追加
-                ((ProductAdapter) adapter).add(new productItem(name,exp_date));
+                ((ProductAdapter) adapter).add(new productItem(name,exp_date,1));
                 dammy++;
 
             }
@@ -126,17 +126,18 @@ public class ProductManageActivity extends AppCompatActivity
 
         ArrayList<productItem> list = new ArrayList<productItem>();
         // cursorを作成(iteratorのようなもの)
-        Cursor cursor = m_db.query("listdb", new String[] {"product", "exp_date"},
+        Cursor cursor = m_db.query("listdb", new String[] {"product", "exp_date","num"},
                             null,null,null,null,null);
         // なくなるまで読み取り，それをArrayListに格納
         // referenceを見るとmoveToFirstをしなくても自動で最初の行の一つ前にセットされているらしいので問題ない
         while(cursor.moveToNext()){
             String product = cursor.getString(0);
             String exp_date = cursor.getString(1);
+            int num = cursor.getInt(2);
             try {
-                productItem item = new productItem(product, exp_date);
+                productItem item = new productItem(product, exp_date,num);
                 list.add(item);
-                Log.d("my-debug","******"+product+" "+exp_date);
+                Log.d("my-debug","******"+product+" "+exp_date + " " + String.valueOf(num));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -148,12 +149,28 @@ public class ProductManageActivity extends AppCompatActivity
 
     //:TODO そもそもDatabaseOpenHelperがあるのにinsertとかでdbをいじってるのがおかしい
     // databaseへのinsert
-    private void insertData(SQLiteDatabase db, String product, Calendar exp_date){
-        ContentValues values = new ContentValues();
-        values.put("product",product);
+    private void insertData(SQLiteDatabase db, String product, Calendar exp_date, int num){
         // calender -> stringへ変更
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
+        //ContentValues の設定
+        ContentValues values = new ContentValues();
+        values.put("product",product);
         values.put("exp_date",sdf.format(exp_date.getTime()) );
+
+        // databaseに対応するデータがあるときは，アップデートする
+        Cursor cursor = m_db.query("listdb", new String[] {"product", "exp_date","num"},
+                "product = ? AND exp_date = ?",
+                new String[]{product, sdf.format(exp_date.getTime())},null,null,null);
+        while(cursor.moveToNext()){
+            values.put("num", num + cursor.getInt(2));
+            m_db.update("listdb", values, "product = ? AND exp_date = ?",
+                    new String[]{product, sdf.format(exp_date.getTime())});
+            Log.d("my-debug","******"+product+" "+values+" update");
+            cursor.close();
+            return;
+        }
+
+        values.put("num",num);
         Log.d("my-debug","******"+product+" "+values+" insert");
         db.insert("listdb",null,values);
     }
@@ -166,27 +183,33 @@ public class ProductManageActivity extends AppCompatActivity
         alertCheck((productItem)parent.getAdapter().getItem(position), position);
     }
     /* ダイアログを表示する */
-    private void alertCheck(productItem item ,int position){
+    private void alertCheck(productItem target ,int position){
         final int pos=position;
-        final productItem ite = item;
-        String[] alert_menu = {"削除", "cancel"};
-        AlertDialog.Builder alert = new AlertDialog.Builder(ProductManageActivity.this);
-        alert.setTitle(item.getProduct());
-        alert.setItems(alert_menu, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int idx) {
-                // リストアイテムを選択したときの処理
-                // 上に移動
-                if (idx == 0) {
-                    deleteItem(m_db,ite, pos);
+        // 名前を表示している部分か，賞味期限をだしている部分かで処理を変える
+        if (target.getNum() == -1){
+
+
+        }else {
+            final productItem item = target;
+            String[] alert_menu = {"削除", "cancel"};
+            AlertDialog.Builder alert = new AlertDialog.Builder(ProductManageActivity.this);
+            alert.setTitle(target.toString());
+            alert.setItems(alert_menu, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int idx) {
+                    // リストアイテムを選択したときの処理
+                    // 削除
+                    if (idx == 0) {
+                        deleteItem(m_db, item, pos);
+                    }
+                    // cancel
+                    else {
+                        Log.d("my-debug", "ProductItem Dialog cancel");
+                    }
                 }
-                // cancel
-                else {
-                    Log.d("my-debug", "ProductItem Dialog cancel");
-                }
-            }
-        });
-        alert.show();
+            });
+            alert.show();
+        }
     }
     /* itemを削除する */
     private void deleteItem(SQLiteDatabase db, productItem item, int position){
