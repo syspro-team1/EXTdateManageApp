@@ -41,8 +41,6 @@ public class ProductManageActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_manager);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        Log.d("my-tag",findViewById(R.id.toolbar).toString());
-        Log.d("my-debug",toolbar.toString()+" ");
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -62,7 +60,7 @@ public class ProductManageActivity extends AppCompatActivity
             m_db = m_helper.getWritableDatabase();
         }
         /* database から商品と賞味期限を取得する */
-        ArrayList<productItem> productList = readAllData();
+        ArrayList<ProductItem> productList = readAllData();
 
 
         /* ListViewのインスタンスを取得し，BaseAdapterをextendしたProductAdapterを設定 */
@@ -87,7 +85,7 @@ public class ProductManageActivity extends AppCompatActivity
                 //database への追加
                 insertData(m_db,name,exp_date,1);
                 // productAdapterへの追加
-                ((ProductAdapter) adapter).add(new productItem(name,exp_date,1));
+                ((ProductAdapter) adapter).add(new ProductItem(name,exp_date,1));
                 dammy++;
 
             }
@@ -115,16 +113,16 @@ public class ProductManageActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private ArrayList<productItem> readAllData(){
+    private ArrayList<ProductItem> readAllData(){
         if(m_helper == null){
             m_helper = new DatabaseOpenHelper(getApplicationContext());
         }
         if(m_db == null){
             m_db = m_helper.getReadableDatabase();
         }
-        Log.d("my-debug","******Cursor");
+        Log.d("my-debug","******Cursor open");
 
-        ArrayList<productItem> list = new ArrayList<productItem>();
+        ArrayList<ProductItem> list = new ArrayList<ProductItem>();
         // cursorを作成(iteratorのようなもの)
         Cursor cursor = m_db.query("listdb", new String[] {"product", "exp_date","num"},
                             null,null,null,null,null);
@@ -135,14 +133,16 @@ public class ProductManageActivity extends AppCompatActivity
             String exp_date = cursor.getString(1);
             int num = cursor.getInt(2);
             try {
-                productItem item = new productItem(product, exp_date,num);
+                ProductItem item = new ProductItem(product, exp_date,num);
                 list.add(item);
-                Log.d("my-debug","******"+product+" "+exp_date + " " + String.valueOf(num));
+                Log.d("my-debug","******read "+item.toString());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         };
         cursor.close();
+
+        Log.d("my-debug","******Cursor close");
 
         return list;
     }
@@ -165,13 +165,13 @@ public class ProductManageActivity extends AppCompatActivity
             values.put("num", num + cursor.getInt(2));
             m_db.update("listdb", values, "product = ? AND exp_date = ?",
                     new String[]{product, sdf.format(exp_date.getTime())});
-            Log.d("my-debug","******"+product+" "+values+" update");
+            Log.d("my-debug","******update "+product+" "+values);
             cursor.close();
             return;
         }
 
         values.put("num",num);
-        Log.d("my-debug","******"+product+" "+values+" insert");
+        Log.d("my-debug","******insert "+product+" "+values);
         db.insert("listdb",null,values);
     }
 
@@ -179,18 +179,18 @@ public class ProductManageActivity extends AppCompatActivity
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         //対象のproductItem classを取得
-        Log.d("my-debug","onItemClick");
-        alertCheck((productItem)parent.getAdapter().getItem(position), position);
+        Log.d("my-debug","ProductAdapter onItemClick()");
+        alertCheck((ProductItem)parent.getAdapter().getItem(position), position);
     }
     /* ダイアログを表示する */
-    private void alertCheck(productItem target ,int position){
+    private void alertCheck(ProductItem target , int position){
         final int pos=position;
         // 名前を表示している部分か，賞味期限をだしている部分かで処理を変える
         if (target.getNum() == -1){
 
 
         }else {
-            final productItem item = target;
+            final ProductItem item = target;
             String[] alert_menu = {"削除", "cancel"};
             AlertDialog.Builder alert = new AlertDialog.Builder(ProductManageActivity.this);
             alert.setTitle(target.toString());
@@ -212,11 +212,11 @@ public class ProductManageActivity extends AppCompatActivity
         }
     }
     /* itemを削除する */
-    private void deleteItem(SQLiteDatabase db, productItem item, int position){
+    private void deleteItem(SQLiteDatabase db, ProductItem item, int position){
         ((ProductAdapter) adapter).remove(position);
 
         int a = db.delete("listdb", "product = ? AND exp_date = ?",new String[]{item.getProduct(),item.getExp_dateString()});
 
-        Log.d("my-debug",String.valueOf(a) + " " + item.getProduct()+" "+item.getExp_dateString());
+        Log.d("my-debug","******delete "+item.toString());
     }
 }

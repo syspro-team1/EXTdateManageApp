@@ -23,7 +23,7 @@ public class ProductAdapter extends BaseAdapter {
     // productCollector
     private ArrayList<ProductCollector> collectors;
     // productItem のArrayList
-    private ArrayList<productItem> items;
+    private ArrayList<ProductItem> items;
     // 日付表示のフォーマット
     private SimpleDateFormat format;
 
@@ -36,33 +36,33 @@ public class ProductAdapter extends BaseAdapter {
 
 
     public ProductAdapter(Context context, int layoutID,
-                          ArrayList<productItem> productList){
+                          ArrayList<ProductItem> productList){
         inflater = LayoutInflater.from(context);
         // ここに置けるレイアウトは一つのアイテム内でのレイアウトを指している
         this.layoutID = layoutID;
         // deep copy
-        this.items = (ArrayList<productItem>) productList.clone();
+        this.items = (ArrayList<ProductItem>) productList.clone();
         collectors = new ArrayList<ProductCollector>();
         ArrayList<String> products = new ArrayList<String>();
-        for (productItem item:items){
+        for (ProductItem item:items){
             if (!products.contains(item.getProduct())) products.add(item.getProduct());
         }
-        Log.d("my-debug", "adapter create: product:" + products.toString());
         // 名前ごとに整列してcollectorsに追加
         for (String str:products){
             ProductCollector collector = new ProductCollector(str);
-            for(productItem item:items){
+            for(ProductItem item:items){
                 collector.addList(item);
             }
             collectors.add(collector);
         }
+        for (ProductCollector collector: collectors) Log.d("my-debug", collector.toString());
         // 日付表示のフォーマットを設定
         format = new SimpleDateFormat("yyyy.MM.dd");
     }
     //adapterへのアイテムの追加処理
-    public boolean add(productItem item) {
+    public boolean add(ProductItem item) {
         for (ProductCollector collector:collectors){
-            if(collector.IsMatch(item)) {
+            if(collector.isMatch(item)) {
                 boolean res= collector.addList(item);
                 notifyDataSetChanged();
                 return res;
@@ -74,52 +74,32 @@ public class ProductAdapter extends BaseAdapter {
         collectors.add(collector);
         notifyDataSetChanged();
         return res;
-        /*
-        //存在していれば，個数を加算して終了
-        for(productItem it:items){
-            if(item.equals(it)){
-                it.setNum(it.getNum() + item.getNum());
-                notifyDataSetChanged();
-                return true;
-            }
-        }
-        boolean ress = this.items.add(item);
-        if (ress){
-            //アイテムが正常に追加されればnotifyする．s
-            notifyDataSetChanged();
-        }
-        return ress;
-        */
     }
     //adapterへのアイテムの削除
     public void remove(int position){
-        productItem target = (productItem) getItem(position);
-        // 親である場合
-        if(target.getNum() == -1){
+        ProductItem target = (ProductItem) getItem(position);
             for(ProductCollector collector:collectors){
-                if (collector.IsMatch(target)){
-                    collectors.remove(collector);
-                    break;
+                if (collector.isMatch(target)){
+                    // 親である場合
+                    if(target.getNum() == -1) {
+                        collectors.remove(collector);
+                        break;
+                    }else {
+                        collector.erase(target);
+                        //　アイテムを消した結果商品が空になったらコレクタを削除
+                        if (collector.isEmpty()) collectors.remove(collector);
+                        break;
+                    }
                 }
             }
-        }else{
-            for(ProductCollector collector:collectors){
-                if (collector.IsMatch(target)) {
-                    collector.erase(target);
-                    //　アイテムを消した結果商品が空になったらコレクタを削除
-                    if (collector.isEmpty()) collectors.remove(collector);
-                    break;
-                }
-            }
-        }
         notifyDataSetChanged();
     }
     //adapterの賞味期限順にソート
     public void sort_byExp_date(){
         //comparator classを匿名関数で定義，Collectionsでソート
-        Collections.sort(items, new Comparator<productItem>() {
+        Collections.sort(items, new Comparator<ProductItem>() {
             @Override
-            public int compare(productItem o1, productItem o2) {
+            public int compare(ProductItem o1, ProductItem o2) {
                 return o1.getExp_date().compareTo(o2.getExp_date());
             }
         });
@@ -141,12 +121,7 @@ public class ProductAdapter extends BaseAdapter {
             position -= collectors.get(i).getSize()+1;
             i++;
         }
-        // この場合は親
-        if(position == 0){
-            return collectors.get(i).getParent();
-        }else{
-            return collectors.get(i).getItem(position-1);
-        }
+        return (position == 0) ? collectors.get(i).getParent() : collectors.get(i).getItem(position-1);
     }
     @Override
     public long getItemId(int position){
@@ -165,13 +140,11 @@ public class ProductAdapter extends BaseAdapter {
             holder.exp_date = convertView.findViewById(R.id.exp_date);
             holder.num = convertView.findViewById(R.id.num);
             convertView.setTag(holder);
-            Log.d("[my-debug]","position: " + position + ")  " + convertView.hashCode());
         }else{
             holder = (ViewHolder)convertView.getTag();
         }
         //実際にフォルダーにテキストを設定
-        productItem target = (productItem) getItem(position);
-        Log.d("my-debug",target.toString());
+        ProductItem target = (ProductItem) getItem(position);
         // 親である場合
         if (target.getNum() == -1){
             holder.product_name.setText(target.getProduct());
