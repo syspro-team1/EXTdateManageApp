@@ -23,18 +23,22 @@ public class ExpDateNotificationReceiver extends BroadcastReceiver {
         // TODO: This method is called when the BroadcastReceiver is receiving
         // an Intent broadcast.
         Log.d("my-debug","expdate notification recieved.");
-        String title = context.getString(R.string.app_name);
         // intent に付いてきたデータを読む
+        int ID = intent.getIntExtra("ID", -1);
         String product = intent.getStringExtra("product");
         String exp_date_str = intent.getStringExtra("exp_date");
         int num = intent.getIntExtra("num",-1);
         int requestCode = intent.getIntExtra("requestCode",-1);
+        int day = intent.getIntExtra("before_day",-1);
         // 通知に表示されるメッセージ
+        String title = context.getString(R.string.app_name);
         String message = "date format miss.";
         long when = System.currentTimeMillis();
         try {
-            ProductItem item = new ProductItem(product,exp_date_str,num);
-            message = item.toString();
+            // IDには存在しない値を突っ込んでいる
+            ProductItem item = new ProductItem(ID,product,exp_date_str,num);
+            title = "賞味期限" + String.valueOf(day) +"日前です";
+            message =  item.getProduct() + ":" + String.valueOf(item.getNum()) + "個";
         } catch (ParseException e) {
             e.printStackTrace();
         }

@@ -9,12 +9,13 @@ public class ProductCollector {
     private ArrayList<ProductItem> items;
     private String product;
     // getItemの関係で架空のアイテムを持っておく必要がある．
+    // IDには-1, 個数にも-1が入っている
     private ProductItem img;
 
     ProductCollector(String product){
         this.product = product;
         this.items = new ArrayList<ProductItem>();
-        this.img = new ProductItem(product, Calendar.getInstance(),-1);
+        this.img = new ProductItem(-1, product, Calendar.getInstance(),-1);
     }
 
     public boolean addList(ProductItem item){
