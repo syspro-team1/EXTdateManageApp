@@ -7,6 +7,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.text.ParseException;
@@ -46,25 +48,41 @@ public class ExpDateNotificationReceiver extends BroadcastReceiver {
 
         // local push だった時の処理，
         if(intent.getAction().equals("com.team1.syspro.expdatemanageapp.localpush")){
-            // notification manager
-            NotificationManager manager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-            // notification channel
-            NotificationChannel channel = new NotificationChannel(channelId, title, NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-            channel.enableVibration(true);
-            channel.enableLights(true);
-            channel.setLightColor(Color.BLUE);
-            // notification
-            if(manager != null){
-                manager.createNotificationChannel(channel);
-                Notification notification = new Notification.Builder(context, channelId)
-                        .setContentTitle(title)
-                        .setSmallIcon(android.R.drawable.ic_dialog_alert)
-                        .setContentText(message)
-                        .setAutoCancel(true)
-                        .setWhen(when)
-                        .build();
-                manager.notify(R.string.app_name + requestCode, notification);
+            // API >=26 の時はnotification channelを設定
+            if (Build.VERSION.SDK_INT >= 26) {
+                // notification manager
+                NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                // notification channel
+                NotificationChannel channel = new NotificationChannel(channelId, title, NotificationManager.IMPORTANCE_DEFAULT);
+                channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+                channel.enableVibration(true);
+                channel.enableLights(true);
+                channel.setLightColor(Color.BLUE);
+                // notification
+                if (manager != null) {
+                    manager.createNotificationChannel(channel);
+                    Notification notification = new NotificationCompat.Builder(context, channelId)
+                            .setContentTitle(title)
+                            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                            .setContentText(message)
+                            .setAutoCancel(true)
+                            .setWhen(when)
+                            .build();
+                    manager.notify(R.string.app_name + requestCode, notification);
+                }
+            }else{
+                NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                // notification
+                if (manager != null) {
+                    Notification notification = new NotificationCompat.Builder(context, channelId)
+                            .setContentTitle(title)
+                            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                            .setContentText(message)
+                            .setAutoCancel(true)
+                            .setWhen(when)
+                            .build();
+                    manager.notify(R.string.app_name + requestCode, notification);
+                }
             }
         }
 
