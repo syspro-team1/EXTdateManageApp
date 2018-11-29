@@ -10,8 +10,6 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 
 // BaseAdapter を継承したクラス
@@ -60,17 +58,17 @@ public class ProductAdapter extends BaseAdapter {
         format = new SimpleDateFormat("yyyy.MM.dd");
     }
     //adapterへのアイテムの追加処理
-    public boolean add(ProductItem item) {
+    public int add(ProductItem item) {
         for (ProductCollector collector:collectors){
             if(collector.isMatch(item)) {
-                boolean res= collector.addList(item);
+                int res= collector.addList(item);
                 notifyDataSetChanged();
                 return res;
             }
         }
         // コレクターに一致するものがないので新しい商品
         ProductCollector collector = new ProductCollector(item.getProduct());
-        boolean res = collector.addList(item);
+        int res = collector.addList(item);
         collectors.add(collector);
         notifyDataSetChanged();
         return res;
@@ -97,6 +95,7 @@ public class ProductAdapter extends BaseAdapter {
     //adapterの賞味期限順にソート
     public void sort_byExp_date(){
         //comparator classを匿名関数で定義，Collectionsでソート
+        /*
         Collections.sort(items, new Comparator<ProductItem>() {
             @Override
             public int compare(ProductItem o1, ProductItem o2) {
@@ -104,6 +103,7 @@ public class ProductAdapter extends BaseAdapter {
             }
         });
         notifyDataSetChanged();
+        */
     }
 
     @Override

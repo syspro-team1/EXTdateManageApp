@@ -10,15 +10,18 @@ public class ProductItem {
     private String product;
     private Calendar exp_date;
     private int num;
+    private int ID;
     private SimpleDateFormat sdf;
 
-    ProductItem(String product, Calendar exp_date, int num){
+    ProductItem(int ID, String product, Calendar exp_date, int num){
         sdf = new SimpleDateFormat("yyyy.MM.dd");
+        this.ID = ID;
         this.product = product;
         this.exp_date = exp_date;
         this.num = num;
     }
-    ProductItem(String product, String exp_date, int num) throws ParseException {
+    ProductItem(int ID,String product, String exp_date, int num) throws ParseException {
+        this.ID = ID;
         sdf = new SimpleDateFormat("yyyy.MM.dd");
         Date d = sdf.parse(exp_date);
         this.product = product;
@@ -64,7 +67,11 @@ public class ProductItem {
 
     @Override
     public String toString() {
-        String str = "[" + getProduct() + ", " + getExp_dateString() + ", " + getNum() + "]";
+        String str = "[" + getID() + ":" + getProduct() + ", " + getExp_dateString() + ", " + getNum() + "]";
         return str;
+    }
+
+    public int getID() {
+        return ID;
     }
 }
