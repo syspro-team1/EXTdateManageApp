@@ -1,8 +1,12 @@
 package com.team1.syspro.expdatemanageapp;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -85,12 +89,50 @@ public class ProductManageActivity extends AppCompatActivity
                 //database への追加
                 int ID = insertData(m_db,name,exp_date,1);
                 // productAdapterへの追加
-                ((ProductAdapter) adapter).add(new ProductItem(ID, name,exp_date,1));
+                ProductItem additem = new ProductItem(ID,name,exp_date,1);
+                Log.d("my-debug",additem.toString());
+                int num = ((ProductAdapter) adapter).add(additem);
+                // nofiticationへの追加
+                addNotification(additem);
                 dammy++;
 
             }
         });
     }
+
+    // notificationを登録
+    private void addNotification(ProductItem item) {
+        int requestCode = item.getID();
+        // 賞味期限のプッシュ通知のインテントを選択
+        Intent notify_intent = new Intent(getApplicationContext(), ExpDateNotificationReceiver.class);
+        // 明示的なブロードキャスト
+        notify_intent.setAction("com.team1.syspro.expdatemanageapp.localpush");
+        // 商品情報を付随
+        notify_intent.putExtra("ID",item.getID());
+        notify_intent.putExtra("product", item.getProduct());
+        notify_intent.putExtra("exp_date", item.getExp_dateString());
+        notify_intent.putExtra("num", item.getNum());
+        Log.d("my-debug",notify_intent.toString());
+        // 賞味期限の1日前と3日前に通知を発信
+        Calendar calendar = item.getExp_date();
+        calendar.add(Calendar.DAY_OF_MONTH, -1);
+        long when1day = calendar.getTimeInMillis();
+        calendar.add(Calendar.DAY_OF_MONTH, -2);
+        long when3day = calendar.getTimeInMillis();
+        // IDは(商品名,賞味期限)で固有なので，個数の追加になる場合でもintentのextraが変わるだけ．
+        // (商品の新規追加と加算で処理を分ける必要はない．．．はず)
+        notify_intent.putExtra("before_day",1);
+        notify_intent.putExtra("requestCode", requestCode*10+1);
+        PendingIntent pIntent1day = PendingIntent.getBroadcast(getApplicationContext(), requestCode*10 + 1, notify_intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        notify_intent.putExtra("before_day",3);
+        notify_intent.putExtra("requestCode", requestCode*10+3);
+        PendingIntent pIntent3day = PendingIntent.getBroadcast(getApplicationContext(), requestCode*10 + 3, notify_intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // AlarmManager をコンテキストより取得
+        AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        am.set(AlarmManager.RTC_WAKEUP, when1day, pIntent1day);
+        am.set(AlarmManager.RTC_WAKEUP, when3day, pIntent3day);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

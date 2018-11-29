@@ -49,7 +49,6 @@ public class ScheduleReceiver extends BroadcastReceiver {
             Log.d("my-debug",notify_intent.toString());
             // 賞味期限の1日前と3日前に通知を発信
             Calendar calendar = item.getExp_date();
-            Log.d("my-debug",calendar.toString());
             calendar.add(Calendar.DAY_OF_MONTH, -1);
             long when1day = calendar.getTimeInMillis();
             calendar.add(Calendar.DAY_OF_MONTH, -2);
@@ -62,10 +61,10 @@ public class ScheduleReceiver extends BroadcastReceiver {
             // requestCodeは　item.getID()*10 + 1 or item.getID()*10 + 3 ということで
             notify_intent.putExtra("before_day",1);
             notify_intent.putExtra("requestCode", requestCode*10+1);
-            PendingIntent pIntent1day = PendingIntent.getBroadcast(context, requestCode*10 + 1, notify_intent, 0);
+            PendingIntent pIntent1day = PendingIntent.getBroadcast(context, requestCode*10 + 1, notify_intent, PendingIntent.FLAG_UPDATE_CURRENT);
             notify_intent.putExtra("before_day",3);
             notify_intent.putExtra("requestCode", requestCode*10+3);
-            PendingIntent pIntent3day = PendingIntent.getBroadcast(context, requestCode*10 + 3, notify_intent, 0);
+            PendingIntent pIntent3day = PendingIntent.getBroadcast(context, requestCode*10 + 3, notify_intent, PendingIntent.FLAG_UPDATE_CURRENT);
             // AlarmManager をコンテキストより取得
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             am.set(AlarmManager.RTC_WAKEUP, when1day, pIntent1day);

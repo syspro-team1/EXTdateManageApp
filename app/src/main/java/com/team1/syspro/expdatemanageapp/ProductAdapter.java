@@ -60,17 +60,17 @@ public class ProductAdapter extends BaseAdapter {
         format = new SimpleDateFormat("yyyy.MM.dd");
     }
     //adapterへのアイテムの追加処理
-    public boolean add(ProductItem item) {
+    public int add(ProductItem item) {
         for (ProductCollector collector:collectors){
             if(collector.isMatch(item)) {
-                boolean res= collector.addList(item);
+                int res= collector.addList(item);
                 notifyDataSetChanged();
                 return res;
             }
         }
         // コレクターに一致するものがないので新しい商品
         ProductCollector collector = new ProductCollector(item.getProduct());
-        boolean res = collector.addList(item);
+        int res = collector.addList(item);
         collectors.add(collector);
         notifyDataSetChanged();
         return res;
@@ -132,6 +132,7 @@ public class ProductAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         ViewHolder holder;
+        Log.d("my-debug",":::::::::" + String.valueOf(position));
         // staticなクラスを持っておき，最初以外は再利用
         if(convertView == null){
             convertView = inflater.inflate(layoutID,null);

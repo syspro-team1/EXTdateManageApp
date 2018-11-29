@@ -18,14 +18,15 @@ public class ProductCollector {
         this.img = new ProductItem(-1, product, Calendar.getInstance(),-1);
     }
 
-    public boolean addList(ProductItem item){
-        if(!isMatch(item)) return false;
+    // addできたらIDに属する個数を返す．
+    public int addList(ProductItem item){
+        if(!isMatch(item)) return 0;
         int pos = isContain(item);
         if (pos != -1){
             items.get(pos).setNum( items.get(pos).getNum() + item.getNum() );
-            return true;
+            return items.get(pos).getNum();
         }
-        return items.add(item);
+        return items.add(item) ? 1:0;
     }
     // itemを含んでいるかどうか含んでいたら場所を返す
     public int isContain(ProductItem item){
