@@ -89,11 +89,9 @@ public class ProductManageActivity extends AppCompatActivity
                 //database への追加
                 int ID = insertData(m_db,name,exp_date,1);
                 // productAdapterへの追加
-                ProductItem additem = new ProductItem(ID,name,exp_date,1);
-                Log.d("my-debug",additem.toString());
-                int num = ((ProductAdapter) adapter).add(additem);
+                int num = ((ProductAdapter) adapter).add(new ProductItem(ID,name,exp_date,1));
                 // nofiticationへの追加
-                addNotification(additem);
+                addNotification(new ProductItem(ID,name,exp_date,num));
                 dammy++;
 
             }
@@ -270,8 +268,28 @@ public class ProductManageActivity extends AppCompatActivity
     }
     /* itemを削除する */
     private void deleteItem(SQLiteDatabase db, ProductItem item, int position){
+        //adapterからの削除
         ((ProductAdapter) adapter).remove(position);
 
+        //notificationからの削除
+        int requestCode = item.getID();
+        // 賞味期限のプッシュ通知のインテントを選択
+        Intent notify_intent = new Intent(getApplicationContext(), ExpDateNotificationReceiver.class);
+        // 明示的なブロードキャスト
+        notify_intent.setAction("com.team1.syspro.expdatemanageapp.localpush");
+        // requestコードはIDで固有のため，これでキャンセルしたい通知がわかる．
+        PendingIntent pIntent1day = PendingIntent.getBroadcast(getApplicationContext(), requestCode*10 + 1, notify_intent, PendingIntent.FLAG_NO_CREATE);
+        PendingIntent pIntent3day = PendingIntent.getBroadcast(getApplicationContext(), requestCode*10 + 3, notify_intent, PendingIntent.FLAG_NO_CREATE);
+        AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        if(pIntent1day != null){
+            am.cancel(pIntent1day);
+        }
+        if(pIntent3day != null){
+            am.cancel(pIntent3day);
+        }
+
+
+        //dbからの削除
         int a = db.delete("listdb", "product = ? AND exp_date = ?",new String[]{item.getProduct(),item.getExp_dateString()});
 
         Log.d("my-debug","******delete "+item.toString());
