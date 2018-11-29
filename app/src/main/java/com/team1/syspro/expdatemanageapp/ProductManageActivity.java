@@ -114,7 +114,8 @@ public class ProductManageActivity extends AppCompatActivity
         notify_intent.putExtra("num", item.getNum());
         Log.d("my-debug",notify_intent.toString());
         // 賞味期限の1日前と3日前に通知を発信
-        Calendar calendar = item.getExp_date();
+        // ちゃんとdeep copyしよう
+        Calendar calendar = (Calendar) item.getExp_date().clone();
         calendar.add(Calendar.DAY_OF_MONTH, -1);
         long when1day = calendar.getTimeInMillis();
         calendar.add(Calendar.DAY_OF_MONTH, -2);

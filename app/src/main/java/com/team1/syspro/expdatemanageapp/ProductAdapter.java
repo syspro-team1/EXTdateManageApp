@@ -10,8 +10,6 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 
 // BaseAdapter を継承したクラス
@@ -97,6 +95,7 @@ public class ProductAdapter extends BaseAdapter {
     //adapterの賞味期限順にソート
     public void sort_byExp_date(){
         //comparator classを匿名関数で定義，Collectionsでソート
+        /*
         Collections.sort(items, new Comparator<ProductItem>() {
             @Override
             public int compare(ProductItem o1, ProductItem o2) {
@@ -104,6 +103,7 @@ public class ProductAdapter extends BaseAdapter {
             }
         });
         notifyDataSetChanged();
+        */
     }
 
     @Override
@@ -132,7 +132,6 @@ public class ProductAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         ViewHolder holder;
-        Log.d("my-debug",":::::::::" + String.valueOf(position));
         // staticなクラスを持っておき，最初以外は再利用
         if(convertView == null){
             convertView = inflater.inflate(layoutID,null);
