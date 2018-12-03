@@ -86,6 +86,7 @@ public class ProductManageActivity extends AppCompatActivity
                 String name = "nantoka" + String.valueOf(dammy);
                 Calendar exp_date = Calendar.getInstance();
                 exp_date.add(Calendar.DATE,dammy);
+                exp_date.set(exp_date.get(Calendar.YEAR), exp_date.get(Calendar.MONTH), exp_date.get(Calendar.DATE), 23,59,59);
                 //database への追加
                 int ID = insertData(m_db,name,exp_date,1);
                 // productAdapterへの追加

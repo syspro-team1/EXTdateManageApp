@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 // BaseAdapter を継承したクラス
@@ -145,6 +146,8 @@ public class ProductAdapter extends BaseAdapter {
         }
         //実際にフォルダーにテキストを設定
         ProductItem target = (ProductItem) getItem(position);
+        //現在時刻を取得
+        Calendar now = Calendar.getInstance();
         // 親である場合
         if (target.getNum() == -1){
             holder.product_name.setText(target.getProduct());
@@ -153,6 +156,18 @@ public class ProductAdapter extends BaseAdapter {
         }else {
             holder.product_name.setText(" ");
             holder.exp_date.setText(format.format(target.getExp_date().getTime()));
+            long diff = target.getExp_date().getTimeInMillis() + 1000 - now.getTimeInMillis();
+            long hour = diff/1000/60/60;
+            // 1日前
+            if ( hour <= 24){
+                holder.exp_date.setTextColor(convertView.getResources().getColor(R.color.red));
+            }else if(hour <= 24*3){
+                holder.exp_date.setTextColor(convertView.getResources().getColor(R.color.coral));
+            }else if(hour <= 24*5){
+                holder.exp_date.setTextColor(convertView.getResources().getColor(R.color.yellow));
+            }else{
+                holder.exp_date.setTextColor(convertView.getResources().getColor(R.color.dimgray));
+            }
             holder.num.setText(String.valueOf(target.getNum()) );
         }
         return convertView;
