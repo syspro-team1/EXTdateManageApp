@@ -11,7 +11,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -34,6 +33,7 @@ import java.util.Calendar;
 // :TODO listdbとかマジックナンバになっているのでよくない気はする
 public class ProductManageActivity extends AppCompatActivity
     implements AdapterView.OnItemClickListener {
+    private GetProductInfoTask task;
     private DatabaseOpenHelper m_helper;
     private SQLiteDatabase m_db;
     private static int dammy=0;
@@ -51,8 +51,10 @@ public class ProductManageActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //とりあえずここにURL通信を割り当てる
+                task = new GetProductInfoTask();
+                task.setListener(createListener());
+                task.execute("test");
             }
         });
 
@@ -294,5 +296,15 @@ public class ProductManageActivity extends AppCompatActivity
         int a = db.delete("listdb", "product = ? AND exp_date = ?",new String[]{item.getProduct(),item.getExp_dateString()});
 
         Log.d("my-debug","******delete "+item.toString());
+    }
+
+    private GetProductInfoTask.Listener createListener() {
+        return new GetProductInfoTask.Listener() {
+            @Override
+            public void onSuccess(String result) {
+                //textView.setText(result);
+                Log.d("my-debug", result);
+            }
+        };
     }
 }
