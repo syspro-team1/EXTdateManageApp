@@ -14,7 +14,7 @@ public class ProductItem {
     private SimpleDateFormat sdf;
 
     ProductItem(int ID, String product, Calendar exp_date, int num){
-        sdf = new SimpleDateFormat("yyyy.MM.dd");
+        sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
         this.ID = ID;
         this.product = product;
         this.exp_date = exp_date;
@@ -22,7 +22,7 @@ public class ProductItem {
     }
     ProductItem(int ID,String product, String exp_date, int num) throws ParseException {
         this.ID = ID;
-        sdf = new SimpleDateFormat("yyyy.MM.dd");
+        sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
         Date d = sdf.parse(exp_date);
         this.product = product;
         this.exp_date = Calendar.getInstance();

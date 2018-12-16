@@ -21,8 +21,7 @@ public class GetProductInfoTask extends AsyncTask<String, Void, String> {
         HttpURLConnection httpConn = null;
         String result=null;
         // ここにデータを書く
-        String sendData = "{\"UserName\": \"testerA\", \"PassWard\": \"12345\", \"BuyTime\": \"2018/12/1 12:00\", \"Production\": [{\"id\": \"1\", \"num\": \"2\", \"time\": \"2018/12/3 12:00\", \"price\": \"100\"}, {\"id\": \"2\", \"num\": \"2\", \"time\": \"2018/12/2 12:00\", \"price\": \"150\"}]}";
-
+        String sendData = params[0];
         try{
             URL url = new URL(urlSt);
             //HTTP connection

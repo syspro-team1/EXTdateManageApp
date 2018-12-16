@@ -22,10 +22,15 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 
 /* 商品アイテムの管理アクティビティ */
@@ -52,9 +57,14 @@ public class ProductManageActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 //とりあえずここにURL通信を割り当てる
+                JSONManager jmanage = new JSONManager("testerA","12345");
+                //ここにQRから読み込んだstringを入れる
+                String QRstr = "{\"BuyTime\": \"2018/12/1 12:00\", \"Production\": [{\"id\": \"1\", \"num\": \"2\", \"time\": \"2018/12/3 12:00\", \"price\": \"100\"}]}";
+                jmanage.setProductList(QRstr);
+                Log.d( "my-debug", "sending json... ¥n" + jmanage.toString(4));
                 task = new GetProductInfoTask();
                 task.setListener(createListener());
-                task.execute("test");
+                task.execute(jmanage.toString());
             }
         });
 
@@ -298,12 +308,40 @@ public class ProductManageActivity extends AppCompatActivity
         Log.d("my-debug","******delete "+item.toString());
     }
 
+    // HTTPから帰ってきたのを処理する部分．
     private GetProductInfoTask.Listener createListener() {
         return new GetProductInfoTask.Listener() {
             @Override
             public void onSuccess(String result) {
                 //textView.setText(result);
-                Log.d("my-debug", result);
+                Log.d("my-debug", "result: " + result);
+                //おそらくJSONが帰ってくる
+                try {
+                    JSONArray jarray = new JSONArray(result);
+                    for(int i=0;i<jarray.length();i++){
+                        JSONObject obj = jarray.getJSONObject(i);
+                        //:TODO ここら辺の仕様が不明瞭かもしれない
+                        String name = obj.getString("name");
+                        String nums = obj.getString("num");
+                        String time = obj.getString("time");
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                        try {
+                            Date d = sdf.parse(time);
+                            Calendar exp_date = Calendar.getInstance();
+                            exp_date.setTime(d);
+                            //database への追加
+                            int ID = insertData(m_db,name,exp_date, Integer.parseInt(nums));
+                            // productAdapterへの追加
+                            int num = ((ProductAdapter) adapter).add(new ProductItem(ID,name,exp_date,Integer.parseInt(nums)));
+                            // nofiticationへの追加
+                            addNotification(new ProductItem(ID,name,exp_date,num));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         };
     }
