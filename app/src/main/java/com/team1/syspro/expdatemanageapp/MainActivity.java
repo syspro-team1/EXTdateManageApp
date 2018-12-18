@@ -22,5 +22,14 @@ public class MainActivity extends AppCompatActivity {
                                           }
                                       }
         );
+
+        Button tempButton = findViewById(R.id.TempButton);
+        tempButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplication(), CameraActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }
