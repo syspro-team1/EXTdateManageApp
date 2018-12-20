@@ -23,28 +23,30 @@ public class JSONManager {
             main.put("UserName",user);
             main.put("PassWord",pass);
         }catch (JSONException e){
-            e.printStackTrace();
+            Log.d("my-debug","in JSONManager Constractor: ",e);
         }
     }
     public void setUser(String user){
         try {
             main.put("UserName",user);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.d("my-debug","in JSONManager setUser: ",e);
         }
     }
     public void setPassword(String pass){
         try {
             main.put("PassWord",pass);
         } catch (JSONException e) {
-            e.printStackTrace();
+
+            Log.d("my-debug","in JSONManager setPassword: ",e);
         }
     }
     public void setBuyTime(String buy){
         try {
             main.put("BuyTime",buy);
         } catch (JSONException e) {
-            e.printStackTrace();
+
+            Log.d("my-debug","in JSONManager setBuyTime: ",e);
         }
     }
     //2018/12/1 12:00
@@ -55,7 +57,7 @@ public class JSONManager {
         try {
             main.put("BuyTime", str);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.d("my-debug","in JSONManager setBuyTime: ",e);
         }
     }
     public void setProductList(String QRstr){
@@ -67,7 +69,7 @@ public class JSONManager {
 
             main.put("Production", productlist);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.d("my-debug","in JSONManager setProductList: ",e);
         }
     }
 
@@ -78,7 +80,7 @@ public class JSONManager {
         try {
             return main.toString(indentSpaces);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.d("my-debug","in JSONManager toString(indentSpace): ",e);
             return null;
         }
     }
