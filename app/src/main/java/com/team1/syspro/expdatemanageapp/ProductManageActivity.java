@@ -59,7 +59,7 @@ public class ProductManageActivity extends AppCompatActivity
                 //とりあえずここにURL通信を割り当てる
                 JSONManager jmanage = new JSONManager("testerA","12345");
                 //ここにQRから読み込んだstringを入れる
-                String QRstr = "{\"BuyTime\": \"2018/12/1 12:00\", \"Production\": [{\"id\": \"1\", \"num\": \"2\", \"time\": \"2018/12/3 12:00\", \"price\": \"100\"}]}";
+                String QRstr = "{'BuyTime': '2018/12/01 12:00','Production': [{'id' : '1','num' : '2', 'time' : '2018/12/03 12:00', 'price': '100'},{'id' : '2','num' : '2', 'time' : '2018/12/02 12:00', 'price': '150'}]}";
                 jmanage.setProductList(QRstr);
                 Log.d( "my-debug", "sending json... ¥n" + jmanage.toString(4));
                 task = new GetProductInfoTask();
@@ -192,7 +192,7 @@ public class ProductManageActivity extends AppCompatActivity
                 list.add(item);
                 Log.d("my-debug","******read "+item.toString());
             } catch (ParseException e) {
-                e.printStackTrace();
+                Log.d("my-debug","message", e);
             }
         };
         cursor.close();
@@ -206,7 +206,7 @@ public class ProductManageActivity extends AppCompatActivity
     // databaseへのinsert
     private int insertData(SQLiteDatabase db, String product, Calendar exp_date, int num){
         // calender -> stringへ変更
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");;
         //ContentValues の設定
         ContentValues values = new ContentValues();
         values.put("product",product);
@@ -315,12 +315,16 @@ public class ProductManageActivity extends AppCompatActivity
             public void onSuccess(String result) {
                 //textView.setText(result);
                 Log.d("my-debug", "result: " + result);
-                //おそらくJSONが帰ってくる
+                // JSONの仕様に関してはgoogle driveを参照
+
                 try {
-                    JSONArray jarray = new JSONArray(result);
+                    JSONObject resultObj = new JSONObject(result);
+                    // dataのJSON
+                    JSONObject dataObj = resultObj.getJSONObject("data");
+                    // arrayのJSON
+                    JSONArray jarray = dataObj.getJSONArray("Production");
                     for(int i=0;i<jarray.length();i++){
                         JSONObject obj = jarray.getJSONObject(i);
-                        //:TODO ここら辺の仕様が不明瞭かもしれない
                         String name = obj.getString("name");
                         String nums = obj.getString("num");
                         String time = obj.getString("time");
@@ -336,11 +340,11 @@ public class ProductManageActivity extends AppCompatActivity
                             // nofiticationへの追加
                             addNotification(new ProductItem(ID,name,exp_date,num));
                         } catch (ParseException e) {
-                            e.printStackTrace();
+                            Log.d("my-debug","ProductManageActivity GetProductInfoTask.Listener", e);
                         }
                     }
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.d("my-debug","ProductManageActivity GetProductInfoTask.Listener", e);
                 }
             }
         };

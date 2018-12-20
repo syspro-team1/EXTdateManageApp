@@ -94,7 +94,7 @@ public class ScheduleReceiver extends BroadcastReceiver {
                 list.add(item);
                 Log.d("my-debug","******read "+item.toString());
             } catch (ParseException e) {
-                e.printStackTrace();
+                Log.d("my-debug","ScheduleReciever readAllData();", e);
             }
         };
         cursor.close();

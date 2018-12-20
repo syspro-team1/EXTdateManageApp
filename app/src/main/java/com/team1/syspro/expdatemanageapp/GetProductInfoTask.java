@@ -16,7 +16,8 @@ public class GetProductInfoTask extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... params) {
         //googledriveのURL
-        String urlSt = "https://script.google.com/macros/s/AKfycbwCLfqrz1-wdG1klm9kpVKwkxttRIFFixD3odklyKaZPm0PuUc/exec";
+        String urlSt =   "https://script.google.com/macros/s/AKfycbwCLfqrz1-wdG1klm9kpVKwkxttRIFFixD3odklyKaZPm0PuUc/exec";
+        //String urlSt = "https://script.google.com/macros/s/AKfycbwCLfqrz1-wdG1klm9kpVKwkxttRIFFixD3odklyKaZPm0PuUc/exec";
         // https://script.google.com/macros/s/AKfycbz5zQf6ZQn90AumRJDRkrE41r2EpeLm5yagPRQuh6RNj6KyA9BE/exec?UserName=testerA&PassWard=12345&BuyTime=2018%2F12%2F1+12%3A00&Production=%5B%7B%27id%27%3A+%271%27%2C+%27num%27%3A+%272%27%2C+%27time%27%3A+%272018%2F12%2F3+12%3A00%27%2C+%27price%27%3A+%27100%27%7D%2C+%7B%27id%27%3A+%272%27%2C+%27num%27%3A+%272%27%2C+%27time%27%3A+%272018%2F12%2F2+12%3A00%27%2C+%27price%27%3A+%27150%27%7D%5D
         HttpURLConnection httpConn = null;
         String result=null;
