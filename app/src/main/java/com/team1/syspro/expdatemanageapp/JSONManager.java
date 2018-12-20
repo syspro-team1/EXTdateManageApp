@@ -21,7 +21,7 @@ public class JSONManager {
         main = new JSONObject();
         try{
             main.put("UserName",user);
-            main.put("Password",pass);
+            main.put("PassWord",pass);
         }catch (JSONException e){
             e.printStackTrace();
         }
