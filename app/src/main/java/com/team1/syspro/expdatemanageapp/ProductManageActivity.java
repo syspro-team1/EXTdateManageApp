@@ -341,7 +341,7 @@ public class ProductManageActivity extends AppCompatActivity
                                 // productAdapterへの追加
                                 int num = ((ProductAdapter) adapter).add(new ProductItem(ID,name,exp_date,Integer.parseInt(nums)));
                                 // nofiticationへの追加
-                                addNotification(new ProductItem(ID,name,exp_date,num));
+                                addNotification(new ProductItem(ID,name,exp_date,Integer.parseInt(nums)) );
                             } catch (ParseException e) {
                                 Log.d("my-debug","ProductManageActivity GetProductInfoTask.Listener", e);
                             }
