@@ -11,7 +11,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -23,10 +22,15 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 
 /* 商品アイテムの管理アクティビティ */
@@ -34,6 +38,7 @@ import java.util.Calendar;
 // :TODO listdbとかマジックナンバになっているのでよくない気はする
 public class ProductManageActivity extends AppCompatActivity
     implements AdapterView.OnItemClickListener {
+    private GetProductInfoTask task;
     private DatabaseOpenHelper m_helper;
     private SQLiteDatabase m_db;
     private static int dammy=0;
@@ -51,8 +56,15 @@ public class ProductManageActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //とりあえずここにURL通信を割り当てる
+                JSONManager jmanage = new JSONManager("testerA","12345");
+                //ここにQRから読み込んだstringを入れる
+                String QRstr = "{'BuyTime': '2018/12/01 12:00','Production': [{'id' : '1','num' : '2', 'time' : '2018/12/03 12:00', 'price': '100'},{'id' : '2','num' : '2', 'time' : '2018/12/02 12:00', 'price': '150'}]}";
+                jmanage.setProductList(QRstr);
+                Log.d( "my-debug", "sending json... ¥r¥n" + jmanage.toString());
+                task = new GetProductInfoTask();
+                task.setListener(createListener());
+                task.execute(jmanage.toString());
             }
         });
 
@@ -180,7 +192,7 @@ public class ProductManageActivity extends AppCompatActivity
                 list.add(item);
                 Log.d("my-debug","******read "+item.toString());
             } catch (ParseException e) {
-                e.printStackTrace();
+                Log.d("my-debug","message", e);
             }
         };
         cursor.close();
@@ -194,7 +206,7 @@ public class ProductManageActivity extends AppCompatActivity
     // databaseへのinsert
     private int insertData(SQLiteDatabase db, String product, Calendar exp_date, int num){
         // calender -> stringへ変更
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");;
         //ContentValues の設定
         ContentValues values = new ContentValues();
         values.put("product",product);
@@ -294,5 +306,51 @@ public class ProductManageActivity extends AppCompatActivity
         int a = db.delete("listdb", "product = ? AND exp_date = ?",new String[]{item.getProduct(),item.getExp_dateString()});
 
         Log.d("my-debug","******delete "+item.toString());
+    }
+
+    // HTTPから帰ってきたのを処理する部分．
+    private GetProductInfoTask.Listener createListener() {
+        return new GetProductInfoTask.Listener() {
+            @Override
+            public void onSuccess(String result) {
+                //textView.setText(result);
+                Log.d("my-debug", "HTTP result: ");
+                // JSONの仕様に関してはgoogle driveを参照
+
+                try {
+                    JSONObject resultObj = new JSONObject(result);
+                    Log.d("my-debug", resultObj.toString(4));
+                    // result のstatusがtrueであることを確認
+                    if(resultObj.getBoolean("status")){
+                        // dataのJSON
+                        JSONObject dataObj = resultObj.getJSONObject("data");
+                        // arrayのJSON
+                        JSONArray jarray = dataObj.getJSONArray("Production");
+                        for(int i=0;i<jarray.length();i++){
+                            JSONObject obj = jarray.getJSONObject(i);
+                            String name = obj.getString("name");
+                            String nums = obj.getString("num");
+                            String time = obj.getString("time");
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                            try {
+                                Date d = sdf.parse(time);
+                                Calendar exp_date = Calendar.getInstance();
+                                exp_date.setTime(d);
+                                //database への追加
+                                int ID = insertData(m_db,name,exp_date, Integer.parseInt(nums));
+                                // productAdapterへの追加
+                                int num = ((ProductAdapter) adapter).add(new ProductItem(ID,name,exp_date,Integer.parseInt(nums)));
+                                // nofiticationへの追加
+                                addNotification(new ProductItem(ID,name,exp_date,num));
+                            } catch (ParseException e) {
+                                Log.d("my-debug","ProductManageActivity GetProductInfoTask.Listener", e);
+                            }
+                        }
+                    }
+                } catch (JSONException e) {
+                    Log.d("my-debug","ProductManageActivity GetProductInfoTask.Listener", e);
+                }
+            }
+        };
     }
 }
