@@ -61,7 +61,7 @@ public class ProductManageActivity extends AppCompatActivity
                 //ここにQRから読み込んだstringを入れる
                 String QRstr = "{'BuyTime': '2018/12/01 12:00','Production': [{'id' : '1','num' : '2', 'time' : '2018/12/03 12:00', 'price': '100'},{'id' : '2','num' : '2', 'time' : '2018/12/02 12:00', 'price': '150'}]}";
                 jmanage.setProductList(QRstr);
-                Log.d( "my-debug", "sending json... ¥n" + jmanage.toString(4));
+                Log.d( "my-debug", "sending json... ¥r¥n" + jmanage.toString());
                 task = new GetProductInfoTask();
                 task.setListener(createListener());
                 task.execute(jmanage.toString());
@@ -314,33 +314,37 @@ public class ProductManageActivity extends AppCompatActivity
             @Override
             public void onSuccess(String result) {
                 //textView.setText(result);
-                Log.d("my-debug", "result: " + result);
+                Log.d("my-debug", "HTTP result: ");
                 // JSONの仕様に関してはgoogle driveを参照
 
                 try {
                     JSONObject resultObj = new JSONObject(result);
-                    // dataのJSON
-                    JSONObject dataObj = resultObj.getJSONObject("data");
-                    // arrayのJSON
-                    JSONArray jarray = dataObj.getJSONArray("Production");
-                    for(int i=0;i<jarray.length();i++){
-                        JSONObject obj = jarray.getJSONObject(i);
-                        String name = obj.getString("name");
-                        String nums = obj.getString("num");
-                        String time = obj.getString("time");
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-                        try {
-                            Date d = sdf.parse(time);
-                            Calendar exp_date = Calendar.getInstance();
-                            exp_date.setTime(d);
-                            //database への追加
-                            int ID = insertData(m_db,name,exp_date, Integer.parseInt(nums));
-                            // productAdapterへの追加
-                            int num = ((ProductAdapter) adapter).add(new ProductItem(ID,name,exp_date,Integer.parseInt(nums)));
-                            // nofiticationへの追加
-                            addNotification(new ProductItem(ID,name,exp_date,num));
-                        } catch (ParseException e) {
-                            Log.d("my-debug","ProductManageActivity GetProductInfoTask.Listener", e);
+                    Log.d("my-debug", resultObj.toString(4));
+                    // result のstatusがtrueであることを確認
+                    if(resultObj.getBoolean("status")){
+                        // dataのJSON
+                        JSONObject dataObj = resultObj.getJSONObject("data");
+                        // arrayのJSON
+                        JSONArray jarray = dataObj.getJSONArray("Production");
+                        for(int i=0;i<jarray.length();i++){
+                            JSONObject obj = jarray.getJSONObject(i);
+                            String name = obj.getString("name");
+                            String nums = obj.getString("num");
+                            String time = obj.getString("time");
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                            try {
+                                Date d = sdf.parse(time);
+                                Calendar exp_date = Calendar.getInstance();
+                                exp_date.setTime(d);
+                                //database への追加
+                                int ID = insertData(m_db,name,exp_date, Integer.parseInt(nums));
+                                // productAdapterへの追加
+                                int num = ((ProductAdapter) adapter).add(new ProductItem(ID,name,exp_date,Integer.parseInt(nums)));
+                                // nofiticationへの追加
+                                addNotification(new ProductItem(ID,name,exp_date,num));
+                            } catch (ParseException e) {
+                                Log.d("my-debug","ProductManageActivity GetProductInfoTask.Listener", e);
+                            }
                         }
                     }
                 } catch (JSONException e) {
