@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -357,5 +358,27 @@ public class ProductManageActivity extends AppCompatActivity
                 }
             }
         };
+    }
+
+    //QRコードを読み取った際に呼び出される部分
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if(result != null) {
+            Log.d("my-debug", "readQR: "+result.getContents());
+            String QRstr = result.getContents();
+            // user情報をinput
+            JSONManager jmanage = new JSONManager("testerA","12345");
+            jmanage.setProductList(QRstr);
+            Log.d( "my-debug", "sending json... ¥r¥n" + jmanage.toString());
+            //HTTP通信は非同期で行わなければいけないのでtaskとして設定する．
+            task = new GetProductInfoTask();
+            //帰ってきた処理のリスターを設定．
+            task.setListener(createListener());
+            task.execute(jmanage.toString());
+
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }
