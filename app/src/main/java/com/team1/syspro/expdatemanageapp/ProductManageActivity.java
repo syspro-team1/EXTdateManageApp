@@ -98,20 +98,6 @@ public class ProductManageActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 new IntentIntegrator(ProductManageActivity.this).initiateScan();
-                /*
-                //:TODO とりあえずダミーのproduct Itemを追加する．
-                String name = "nantoka" + String.valueOf(dammy);
-                Calendar exp_date = Calendar.getInstance();
-                exp_date.add(Calendar.DATE,dammy);
-                exp_date.set(exp_date.get(Calendar.YEAR), exp_date.get(Calendar.MONTH), exp_date.get(Calendar.DATE), 23,59,59);
-                //database への追加
-                int ID = insertData(m_db,name,exp_date,1);
-                // productAdapterへの追加
-                int num = ((ProductAdapter) adapter).add(new ProductItem(ID,name,exp_date,1));
-                // nofiticationへの追加
-                addNotification(new ProductItem(ID,name,exp_date,num));
-                dammy++;
-                */
 
             }
         });
@@ -370,6 +356,7 @@ public class ProductManageActivity extends AppCompatActivity
             // user情報をinput
             JSONManager jmanage = new JSONManager("testerA","12345");
             jmanage.setProductList(QRstr);
+
             Log.d( "my-debug", "sending json... ¥r¥n" + jmanage.toString());
             //HTTP通信は非同期で行わなければいけないのでtaskとして設定する．
             task = new GetProductInfoTask();
